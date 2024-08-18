@@ -8,5 +8,8 @@ router.put('/edit/:id', validateDustbin, dustbinController.editDustbin);
 router.delete('/delete/:id', dustbinController.deleteDustbin);
 router.get('/:id', dustbinController.getDustbinById);
 router.get('/', dustbinController.getAllDustbins);
+router.get('/name/:dustbinName', dustbinController.getDustbinByName);
+router.put('/name/:dustbinName', dustbinController.updateDustbinByName);
+
 
 module.exports = router;

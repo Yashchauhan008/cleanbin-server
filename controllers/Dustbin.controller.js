@@ -91,3 +91,51 @@ exports.getAllDustbins = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Get a Dustbin by dustbinName
+exports.getDustbinByName = async (req, res) => {
+    const { dustbinName } = req.params;
+
+    try {
+        const dustbin = await Dustbin.findOne({ dustbinName: dustbinName });
+        if (!dustbin) {
+            return res.status(404).json({ message: `Dustbin with name ${dustbinName} not found` });
+        }
+        res.status(200).json(dustbin);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update Dustbin by dustbinName
+exports.updateDustbinByName = async (req, res) => {
+    const { dustbinName } = req.params;
+    const { filledUp, isDamaged } = req.body;
+
+    // Validate request body
+    if (typeof filledUp !== 'number' || filledUp < 0 || filledUp > 100) {
+        return res.status(400).json({ message: 'Invalid filledUp value. It should be a number between 0 and 100.' });
+    }
+    if (typeof isDamaged !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid isDamaged value. It should be a boolean.' });
+    }
+
+    try {
+        // Find the dustbin by dustbinName
+        const dustbin = await Dustbin.findOne({ dustbinName: dustbinName });
+        if (!dustbin) {
+            return res.status(404).json({ message: `Dustbin with name ${dustbinName} not found` });
+        }
+
+        // Update fields
+        dustbin.filledUp = filledUp;
+        dustbin.isDamaged = isDamaged;
+        dustbin.requestTimeAndDate.push(new Date()); // Add current date to requestTimeAndDate
+
+        // Save the updated dustbin
+        const updatedDustbin = await dustbin.save();
+        res.status(200).json(updatedDustbin);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
