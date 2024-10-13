@@ -40,10 +40,16 @@ exports.addDustbin = async (req, res) => {
 
     const { type, color, filledUp, isDamaged, address, dustbinName, responsiblePerson } = req.body;
 
-    // Generate QR code URL
-    const qrcodeUrl = `${baseUrl}/bin/${dustbinName}`;
-    
     try {
+        // Check if a dustbin with the same name already exists
+        const existingDustbin = await Dustbin.findOne({ dustbinName });
+        if (existingDustbin) {
+            return res.status(400).json({ message: 'Dustbin name already exists' });
+        }
+
+        // Generate QR code URL
+        const qrcodeUrl = `${baseUrl}/bin/${dustbinName}`;
+        
         // Generate QR code
         const qrCodeImage = await QRCode.toDataURL(qrcodeUrl); // Get QR code as Data URL
 
@@ -72,6 +78,7 @@ exports.addDustbin = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 // Edit an existing Dustbin by ID
